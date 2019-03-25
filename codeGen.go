@@ -79,9 +79,9 @@ func genFlatStructSub(st interface{}) StructPropInfos {
 	numField := s.NumField()
 	for i := 0; i < numField; i++ {
 		f := s.Field(i)
+		// 再帰的にstructを探索、time.Timeは例外的にそのままtime.Timeとして扱う
 		if f.Type.Kind().String() == "struct" && f.Type.Name() != "Time" {
 			v := reflect.New(f.Type).Elem().Interface()
-			fmt.Println(v)
 			infos = append(infos, genFlatStructSub(v)...)
 		} else {
 			info := StructPropInfo{
