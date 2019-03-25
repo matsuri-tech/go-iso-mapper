@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"time"
 )
 
 func TestGetPkgPrefix(t *testing.T) {
@@ -26,6 +27,7 @@ func TestGenFlatStruct(t *testing.T) {
 		a string
 		c uint
 		d int
+		t time.Time
 	}
 	type Hoge struct {
 		b Huga

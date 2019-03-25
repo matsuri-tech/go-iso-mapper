@@ -14,9 +14,6 @@ type StructPropInfo struct {
 
 type StructPropInfos []StructPropInfo
 
-// /を含まない文字列の末尾を取得する
-var  r = regexp.MustCompile(`([^/]+)$`)
-
 func (si StructPropInfo) getGrpcTypeStr() string {
 	switch si.Type {
 	default:
@@ -27,6 +24,9 @@ func (si StructPropInfo) getGrpcTypeStr() string {
 func strHeadLower(s string) string {
 	return strings.ToLower(s[0:1]) + s[1:]
 }
+
+// /を含まない文字列の末尾を取得する
+var  r = regexp.MustCompile(`([^/]+)$`)
 
 func getPackagePrefix(pkgPath string) string {
 	s := r.FindStringSubmatch(pkgPath)
@@ -79,7 +79,7 @@ func genFlatStructSub(st interface{}) StructPropInfos {
 	numField := s.NumField()
 	for i := 0; i < numField; i++ {
 		f := s.Field(i)
-		if f.Type.Kind().String() == "struct" {
+		if f.Type.Kind().String() == "struct" && f.Type.Name() != "Time" {
 			v := reflect.New(f.Type).Elem().Interface()
 			fmt.Println(v)
 			infos = append(infos, genFlatStructSub(v)...)
