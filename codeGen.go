@@ -38,6 +38,7 @@ func getPackagePrefix(pkgPath string) string {
 
 func GenInitializer(st interface{}) string {
 	infos := StructPropInfos{}
+	str := ""
 	s := reflect.New(reflect.TypeOf(st)).Elem().Type()
 	for i := 0; i < s.NumField(); i++ {
 		f := s.Field(i)
@@ -47,18 +48,18 @@ func GenInitializer(st interface{}) string {
 		}
 		infos = append(infos, info)
 	}
-	fmt.Println("func New" + s.Name() + "(")
+	str = str + "func New" + s.Name() + "("
 	for _, r := range infos {
-		fmt.Println("  " + strHeadLower(r.Name) + " " + getPackagePrefix(r.Type.PkgPath()) + r.Type.Name() + ",")
+		str = str + "  " + strHeadLower(r.Name) + " " + getPackagePrefix(r.Type.PkgPath()) + r.Type.Name() + ","
 	}
-	fmt.Println(") *" + s.Name() + "{")
-	fmt.Println("return " + "&" + s.Name() + "{")
+	str = str + ") *" + s.Name() + "{"
+	str = str + "return " + "&" + s.Name() + "{"
 	for _, r := range infos {
-		fmt.Println("  " + r.Name + ":" + strHeadLower(r.Name) + ",")
+		str = str + "  " + r.Name + ":" + strHeadLower(r.Name) + ","
 	}
-	fmt.Println(" }")
-	fmt.Println("}")
-	return ""
+	str =  str + " }"
+	str = str + "}"
+	return str
 }
 
 func GenFlatStruct(st interface{}) string {
