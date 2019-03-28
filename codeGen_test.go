@@ -13,17 +13,16 @@ func TestGetPkgPrefix(t *testing.T) {
 	}
 }
 
-func TestGenInitializer(t *testing.T) {
+/*func TestGenInitializer(t *testing.T) {
 	type Hoge struct {
 		a time.Time
 		b string
 		c time.Duration
 	}
-	s := GenInitializer(Hoge{})
-	t.Error(s)
-}
+	GenInitializer(Hoge{})
+}*/
 
-func TestGenFlatStruct(t *testing.T) {
+func TestGenFlattenStruct(t *testing.T) {
 	type Huga struct {
 		a string
 		c uint
@@ -33,5 +32,6 @@ func TestGenFlatStruct(t *testing.T) {
 	type Hoge struct {
 		b Huga
 	}
-	GenFlatStruct(Hoge{})
+	GenFlattenStruct(Hoge{})
+	t.Error("")
 }
