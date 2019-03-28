@@ -26,7 +26,7 @@ func strHeadLower(s string) string {
 }
 
 // /を含まない文字列の末尾を取得する
-var  r = regexp.MustCompile(`([^/]+)$`)
+var r = regexp.MustCompile(`([^/]+)$`)
 
 func getPackagePrefix(pkgPath string) string {
 	s := r.FindStringSubmatch(pkgPath)
@@ -66,7 +66,7 @@ func GenFlatStruct(st interface{}) string {
 	name := s.Name()
 	props := genFlatStructSub(st)
 	fmt.Println("type " + name + " struct {")
-	for _,prop := range props {
+	for _, prop := range props {
 		fmt.Println("  " + prop.Name + " " + getPackagePrefix(prop.Type.PkgPath()) + prop.Type.Name())
 	}
 	fmt.Println("}")
