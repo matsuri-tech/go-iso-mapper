@@ -26,7 +26,7 @@ func strHeadLower(s string) string {
 }
 
 // /を含まない文字列の末尾を取得する
-var  r = regexp.MustCompile(`([^/]+)$`)
+var r = regexp.MustCompile(`([^/]+)$`)
 
 func getPackagePrefix(pkgPath string) string {
 	s := r.FindStringSubmatch(pkgPath)
@@ -61,19 +61,19 @@ func GenInitializer(st interface{}) string {
 	return ""
 }
 
-func GenFlatStruct(st interface{}) string {
+func GenFlattenStruct(st interface{}) string {
 	s := reflect.New(reflect.TypeOf(st)).Elem().Type()
 	name := s.Name()
-	props := genFlatStructSub(st)
+	props := genFlattenStructSub(st)
 	fmt.Println("type " + name + " struct {")
-	for _,prop := range props {
+	for _, prop := range props {
 		fmt.Println("  " + prop.Name + " " + getPackagePrefix(prop.Type.PkgPath()) + prop.Type.Name())
 	}
 	fmt.Println("}")
 	return ""
 }
 
-func genFlatStructSub(st interface{}) StructPropInfos {
+func genFlattenStructSub(st interface{}) StructPropInfos {
 	infos := StructPropInfos{}
 	s := reflect.New(reflect.TypeOf(st)).Elem().Type()
 	numField := s.NumField()
@@ -82,7 +82,7 @@ func genFlatStructSub(st interface{}) StructPropInfos {
 		// 再帰的にstructを探索、time.Timeは例外的にそのままtime.Timeとして扱う
 		if f.Type.Kind().String() == "struct" && f.Type.Name() != "Time" {
 			v := reflect.New(f.Type).Elem().Interface()
-			infos = append(infos, genFlatStructSub(v)...)
+			infos = append(infos, genFlattenStructSub(v)...)
 		} else {
 			info := StructPropInfo{
 				Name: f.Name,
