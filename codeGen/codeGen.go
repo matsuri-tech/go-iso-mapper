@@ -18,23 +18,17 @@ type StructPropInfos []StructPropInfo
 func Generate(st interface{}) string {
 	s := reflect.New(reflect.TypeOf(st)).Elem().Type()
 	structMap := genPrimitiveStructMap(st)
-	structDef := showStructDef(s.Name(), structMap)
+	structDef := "type " + s.Name() + "Map " + showStructDef(structMap)
 	mapper := generateMapper(st, structMap)
 	return structDef + "\n" + mapper
 }
 
-func showStructDef(name string, stMap StructMap) string {
-	var result = "type " + name + "Map "
-	result = result + showStructDefSub(stMap)
-	return result
-}
-
-func showStructDefSub(stMap StructMap) string {
+func showStructDef(stMap StructMap) string {
 	var result = "struct {"
 	for k, v := range stMap {
 		st, isStruct := v.(StructMap)
 		if isStruct {
-			result = result + "\n" + k + " " + showStructDefSub(st)
+			result = result + "\n" + k + " " + showStructDef(st)
 		} else {
 			result = result + "\n" + k + " " + v.(string)
 		}
@@ -125,16 +119,20 @@ func generateMapperSub(prefix string, st interface{}, stMap StructMap) string {
 	for i := 0; i < numField; i++ {
 		f := s.Field(i)
 		if f.Type.Kind().String() == "struct" {
-			v := reflect.New(f.Type).Elem().Interface()
-			vv, ok := stMap[f.Name]
-			if !ok {
-				panic(v)
+			if f.Type.Name() == "Time" {
+				result = result + "\n" + f.Name + ":" + " " + prefix + "." + f.Name + ".Format(\"2006-01-02\")" + ","
+			} else {
+				v := reflect.New(f.Type).Elem().Interface()
+				vv, ok := stMap[f.Name]
+				if !ok {
+					panic(v)
+				}
+				vvv, ok := vv.(StructMap)
+				if !ok {
+					panic(vv)
+				}
+				result = result + "\n" + f.Name + ":" + " " + showStructDef(vvv) + generateMapperSub(prefix+"."+f.Name, v, vvv) + ","
 			}
-			vvv, ok := vv.(StructMap)
-			if !ok {
-				panic(vv)
-			}
-			result = result + "\n" + f.Name + ":" + " " + showStructDefSub(vvv) + generateMapperSub(prefix+"."+f.Name, v, vvv) + ","
 		} else {
 			typ, ok := stMap[f.Name]
 			if !ok {
