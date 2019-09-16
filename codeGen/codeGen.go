@@ -134,7 +134,7 @@ func generateMapperSub(prefix string, stringMapperMethodName string, timeFormat 
 
 		if f.Type.Kind().String() == "struct" {
 			if f.Type.Name() == "Time" {
-				result = result + "\n" + f.Name + ":" + " " + prefix + "." + f.Name + ".Format(" + timeFormat + ")" + ","
+				result = result + "\n" + f.Name + ":" + " " + prefix + "." + f.Name + ".Format(\"" + timeFormat + "\")" + ","
 			} else {
 				v := reflect.New(f.Type).Elem().Interface()
 				vv, ok := stMap[f.Name]
@@ -152,7 +152,11 @@ func generateMapperSub(prefix string, stringMapperMethodName string, timeFormat 
 			if !ok {
 				panic(f.Name)
 			}
-			result = result + "\n" + f.Name + ":" + " " + typ.(string) + "(" + prefix + "." + f.Name + ")" + ","
+			if typ == f.Type.Name() {
+				result = result + "\n" + f.Name + ":" + " " + prefix + "." + f.Name + ","
+			} else {
+				result = result + "\n" + f.Name + ":" + " " + typ.(string) + "(" + prefix + "." + f.Name + ")" + ","
+			}
 		}
 	}
 	result = result + "\n}"

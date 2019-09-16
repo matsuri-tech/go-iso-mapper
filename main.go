@@ -10,6 +10,7 @@ type BBB string
 
 type Huga struct {
 	A BBB
+	C int
 	D int `goMapper:"coarseString"`
 	T time.Time
 }
