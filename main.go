@@ -10,7 +10,7 @@ type BBB string
 
 type Huga struct {
 	A BBB
-	D int
+	D int `goMapper:"coarseString"`
 	T time.Time
 }
 type Hoge struct {
@@ -18,6 +18,6 @@ type Hoge struct {
 }
 
 func main() {
-	result := codeGen.Generate(Hoge{})
+	result := codeGen.Generate(Hoge{}, "toString", "2006-01-02")
 	fmt.Println(result)
 }

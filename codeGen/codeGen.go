@@ -16,11 +16,11 @@ type StructMap = map[string]interface{}
 
 type StructPropInfos []StructPropInfo
 
-func Generate(st interface{}) string {
+func Generate(st interface{}, stringMapperMethodName string, timeFormat string) string {
 	s := reflect.New(reflect.TypeOf(st)).Elem().Type()
 	structMap := genPrimitiveStructMap(st)
 	structDef := "type " + s.Name() + "Map " + showStructDef(structMap)
-	mapper := generateMapper(st, structMap)
+	mapper := generateMapper(st, structMap, stringMapperMethodName, timeFormat)
 	return structDef + "\n" + mapper
 }
 
@@ -93,7 +93,7 @@ func genPrimitiveStructMap(st interface{}) StructMap {
 	for i := 0; i < numField; i++ {
 		f := s.Field(i)
 		// 再帰的にstructを探索、time.Timeはstringに潰す
-		if f.Tag.Get("coarseString") == "true" {
+		if f.Tag.Get("goMapper") == "coarseString" {
 			result[f.Name] = "string"
 			continue
 		}
@@ -112,24 +112,29 @@ func genPrimitiveStructMap(st interface{}) StructMap {
 	return result
 }
 
-func generateMapper(st interface{}, structMap StructMap) string {
+func generateMapper(st interface{}, structMap StructMap, stringMapperMethodName string, timeFormat string) string {
 	s := reflect.New(reflect.TypeOf(st)).Elem().Type()
 	arg := strings.ToLower(s.Name())
 	var result = "func MapFrom" + s.Name() + "(" + arg + " " + s.Name() + ") " + s.Name() + "Map" + " {\nreturn " + s.Name() + "Map"
-	result = result + generateMapperSub(arg, st, structMap)
+	result = result + generateMapperSub(arg, stringMapperMethodName, timeFormat, st, structMap)
 	result = result + "\n}"
 	return result
 }
 
-func generateMapperSub(prefix string, st interface{}, stMap StructMap) string {
+func generateMapperSub(prefix string, stringMapperMethodName string, timeFormat string, st interface{}, stMap StructMap) string {
 	s := reflect.New(reflect.TypeOf(st)).Elem().Type()
 	var result = "{"
 	numField := s.NumField()
 	for i := 0; i < numField; i++ {
 		f := s.Field(i)
+		if f.Tag.Get("goMapper") == "coarseString" {
+			result = result + "\n" + f.Name + ":" + " " + prefix + "." + f.Name + "." + stringMapperMethodName + "()" + ","
+			continue
+		}
+
 		if f.Type.Kind().String() == "struct" {
 			if f.Type.Name() == "Time" {
-				result = result + "\n" + f.Name + ":" + " " + prefix + "." + f.Name + ".Format(\"2006-01-02\")" + ","
+				result = result + "\n" + f.Name + ":" + " " + prefix + "." + f.Name + ".Format(" + timeFormat + ")" + ","
 			} else {
 				v := reflect.New(f.Type).Elem().Interface()
 				vv, ok := stMap[f.Name]
@@ -140,7 +145,7 @@ func generateMapperSub(prefix string, st interface{}, stMap StructMap) string {
 				if !ok {
 					panic(vv)
 				}
-				result = result + "\n" + f.Name + ":" + " " + showStructDef(vvv) + generateMapperSub(prefix+"."+f.Name, v, vvv) + ","
+				result = result + "\n" + f.Name + ":" + " " + showStructDef(vvv) + generateMapperSub(prefix+"."+f.Name, stringMapperMethodName, timeFormat, v, vvv) + ","
 			}
 		} else {
 			typ, ok := stMap[f.Name]
