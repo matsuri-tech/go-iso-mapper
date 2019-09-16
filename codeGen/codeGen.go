@@ -3,6 +3,7 @@ package codeGen
 import (
 	"reflect"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -25,12 +26,20 @@ func Generate(st interface{}) string {
 
 func showStructDef(stMap StructMap) string {
 	var result = "struct {"
-	for k, v := range stMap {
-		st, isStruct := v.(StructMap)
+
+	// 型定義は順序依存なので,keyをsortする必要がある
+	var keys []string
+	for k := range stMap {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		st, isStruct := stMap[k].(StructMap)
 		if isStruct {
 			result = result + "\n" + k + " " + showStructDef(st)
 		} else {
-			result = result + "\n" + k + " " + v.(string)
+			result = result + "\n" + k + " " + stMap[k].(string)
 		}
 	}
 	return result + "\n}"
