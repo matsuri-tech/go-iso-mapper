@@ -1,1 +1,1 @@
-module matsuri/golang-tools
+module matsuri/go-iso-mapper
