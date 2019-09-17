@@ -93,7 +93,7 @@ func genPrimitiveStructMap(st interface{}) StructMap {
 	for i := 0; i < numField; i++ {
 		f := s.Field(i)
 		// 再帰的にstructを探索、time.Timeはstringに潰す
-		if f.Tag.Get("goMapper") == "coarseString" {
+		if f.Tag.Get("goIsoMapper") == "coarseString" {
 			result[f.Name] = "string"
 			continue
 		}
@@ -127,7 +127,7 @@ func generateMapperSub(prefix string, stringMapperMethodName string, timeFormat 
 	numField := s.NumField()
 	for i := 0; i < numField; i++ {
 		f := s.Field(i)
-		if f.Tag.Get("goMapper") == "coarseString" {
+		if f.Tag.Get("goIsoMapper") == "coarseString" {
 			result = result + "\n" + f.Name + ":" + " " + prefix + "." + f.Name + "." + stringMapperMethodName + "()" + ","
 			continue
 		}
