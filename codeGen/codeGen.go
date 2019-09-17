@@ -7,14 +7,14 @@ import (
 	"strings"
 )
 
-type StructPropInfo struct {
+type structPropInfo struct {
 	Name string
 	Type reflect.Type
 }
 
-type StructMap = map[string]interface{}
+type structMap = map[string]interface{}
 
-type StructPropInfos []StructPropInfo
+type structPropInfos []structPropInfo
 
 func Generate(st interface{}, stringMapperMethodName string, timeFormat string) string {
 	s := reflect.New(reflect.TypeOf(st)).Elem().Type()
@@ -24,7 +24,7 @@ func Generate(st interface{}, stringMapperMethodName string, timeFormat string) 
 	return structDef + "\n" + mapper
 }
 
-func showStructDef(stMap StructMap) string {
+func showStructDef(stMap structMap) string {
 	var result = "struct {"
 
 	// 型定義は順序依存なので,keyをsortする必要がある
@@ -35,7 +35,7 @@ func showStructDef(stMap StructMap) string {
 	sort.Strings(keys)
 
 	for _, k := range keys {
-		st, isStruct := stMap[k].(StructMap)
+		st, isStruct := stMap[k].(structMap)
 		if isStruct {
 			result = result + "\n" + k + " " + showStructDef(st)
 		} else {
@@ -61,12 +61,12 @@ func getPackagePrefix(pkgPath string) string {
 }
 
 func GenInitializer(st interface{}) string {
-	infos := StructPropInfos{}
+	infos := structPropInfos{}
 	str := ""
 	s := reflect.New(reflect.TypeOf(st)).Elem().Type()
 	for i := 0; i < s.NumField(); i++ {
 		f := s.Field(i)
-		info := StructPropInfo{
+		info := structPropInfo{
 			Name: f.Name,
 			Type: f.Type,
 		}
@@ -86,10 +86,10 @@ func GenInitializer(st interface{}) string {
 	return str
 }
 
-func genPrimitiveStructMap(st interface{}) StructMap {
+func genPrimitiveStructMap(st interface{}) structMap {
 	s := reflect.New(reflect.TypeOf(st)).Elem().Type()
 	numField := s.NumField()
-	var result = StructMap{}
+	var result = structMap{}
 	for i := 0; i < numField; i++ {
 		f := s.Field(i)
 		// 再帰的にstructを探索、time.Timeはstringに潰す
@@ -112,7 +112,7 @@ func genPrimitiveStructMap(st interface{}) StructMap {
 	return result
 }
 
-func generateMapper(st interface{}, structMap StructMap, stringMapperMethodName string, timeFormat string) string {
+func generateMapper(st interface{}, structMap structMap, stringMapperMethodName string, timeFormat string) string {
 	s := reflect.New(reflect.TypeOf(st)).Elem().Type()
 	arg := strings.ToLower(s.Name())
 	var result = "func MapFrom" + s.Name() + "(" + arg + " " + s.Name() + ") " + s.Name() + "Map" + " {\nreturn " + s.Name() + "Map"
@@ -121,7 +121,7 @@ func generateMapper(st interface{}, structMap StructMap, stringMapperMethodName 
 	return result
 }
 
-func generateMapperSub(prefix string, stringMapperMethodName string, timeFormat string, st interface{}, stMap StructMap) string {
+func generateMapperSub(prefix string, stringMapperMethodName string, timeFormat string, st interface{}, stMap structMap) string {
 	s := reflect.New(reflect.TypeOf(st)).Elem().Type()
 	var result = "{"
 	numField := s.NumField()
@@ -141,7 +141,7 @@ func generateMapperSub(prefix string, stringMapperMethodName string, timeFormat 
 				if !ok {
 					panic(v)
 				}
-				vvv, ok := vv.(StructMap)
+				vvv, ok := vv.(structMap)
 				if !ok {
 					panic(vv)
 				}
@@ -163,16 +163,16 @@ func generateMapperSub(prefix string, stringMapperMethodName string, timeFormat 
 	return result
 }
 
-func isMapEqual(m StructMap, another StructMap) bool {
+func isMapEqual(m structMap, another structMap) bool {
 	for k, v := range m {
 		switch v.(type) {
-		case StructMap:
-			mm, _ := v.(StructMap)
+		case structMap:
+			mm, _ := v.(structMap)
 			mmm, ok := another[k]
 			if !ok {
 				return false
 			}
-			mmmm, _ := mmm.(StructMap)
+			mmmm, _ := mmm.(structMap)
 			return isMapEqual(mm, mmmm)
 		default:
 			vv, ok := another[k]

@@ -25,8 +25,8 @@ func TestGenPrimitiveStructMap(t *testing.T) {
 	}
 	result := genPrimitiveStructMap(Hoge{})
 
-	expectedMap := StructMap{
-		"b": StructMap{
+	expectedMap := structMap{
+		"b": structMap{
 			"c": "uint",
 			"d": "int",
 			"t": "string",
@@ -56,8 +56,8 @@ func TestGenPrimitiveStructMap2(t *testing.T) {
 	}
 	result := genPrimitiveStructMap(Hoge{})
 
-	expectedMap := StructMap{
-		"b": StructMap{
+	expectedMap := structMap{
+		"b": structMap{
 			"c": "uint",
 			"d": "int",
 			"t": "string",
@@ -87,8 +87,8 @@ func TestGenPrimitiveStructMap3(t *testing.T) {
 	}
 	result := genPrimitiveStructMap(Hoge{})
 
-	expectedMap := StructMap{
-		"b": StructMap{
+	expectedMap := structMap{
+		"b": structMap{
 			"c": "string",
 			"d": "int",
 			"t": "string",
