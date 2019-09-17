@@ -13,64 +13,6 @@ func TestGetPkgPrefix(t *testing.T) {
 	}
 }
 
-/*func TestGenInitializer(t *testing.T) {
-	type Hoge struct {
-		a time.Time
-		b string
-		c time.Duration
-	}
-	GenInitializer(Hoge{})
-}*/
-
-/*func TestGenFlattenStruct(t *testing.T) {
-	type Huga struct {
-		a string
-		c uint
-		d int
-		t time.Time
-	}
-	type Hoge struct {
-		b Huga
-	}
-	result := GenFlattenStruct(Hoge{})
-	if result != "type Hoge struct {  a string  c uint  d int  t time.Time}" {
-		t.Error()
-	}
-}
-
-func TestGenFlattenStruct2(t *testing.T) {
-	type Huga struct {
-		a string
-		c uint
-		d int
-		t time.Time
-	}
-	type Hoge struct {
-		b Huga
-		e string
-	}
-	result := GenFlattenStruct(Hoge{})
-	if result != "type Hoge struct {  a string  c uint  d int  t time.Time}" {
-		t.Error(result)
-	}
-}
-
-func TestGenPrimitiveStruct(t *testing.T) {
-	type Huga struct {
-		a string
-		c uint
-		d int
-		t time.Time
-	}
-	type Hoge struct {
-		b Huga
-	}
-	result := GenPrimitiveStruct(Hoge{})
-	if result != "type Hoge struct {  b struct {}}" {
-		t.Error(result)
-	}
-}*/
-
 func TestGenPrimitiveStructMap(t *testing.T) {
 	type Huga struct {
 		a string
@@ -81,7 +23,7 @@ func TestGenPrimitiveStructMap(t *testing.T) {
 	type Hoge struct {
 		b Huga
 	}
-	result := GenPrimitiveStructMap(Hoge{})
+	result := genPrimitiveStructMap(Hoge{})
 
 	expectedMap := StructMap{
 		"b": StructMap{
@@ -112,7 +54,7 @@ func TestGenPrimitiveStructMap2(t *testing.T) {
 	type Hoge struct {
 		b Huga
 	}
-	result := GenPrimitiveStructMap(Hoge{})
+	result := genPrimitiveStructMap(Hoge{})
 
 	expectedMap := StructMap{
 		"b": StructMap{
@@ -136,14 +78,14 @@ func TestGenPrimitiveStructMap3(t *testing.T) {
 
 	type Huga struct {
 		a BBB
-		c CCC `coarseString:"true"`
+		c CCC `goMapper:"coarseString"`
 		d int
 		t time.Time
 	}
 	type Hoge struct {
 		b Huga
 	}
-	result := GenPrimitiveStructMap(Hoge{})
+	result := genPrimitiveStructMap(Hoge{})
 
 	expectedMap := StructMap{
 		"b": StructMap{
@@ -160,19 +102,46 @@ func TestGenPrimitiveStructMap3(t *testing.T) {
 
 }
 
-func TestGenerateMapper(t *testing.T) {
+func TestGenerate(t *testing.T) {
 	type BBB string
 
 	type Huga struct {
 		A BBB
-		D int
+		C int
+		D int `goMapper:"coarseString"`
+		T time.Time
 	}
 	type Hoge struct {
 		B Huga
 	}
-	result := generateMapper(Hoge{})
+	result := Generate(Hoge{}, "toString", "2006-01-02")
 
-	if result != "" {
+	// テストコードがやばすぎる
+	expectedStr := `type HogeMap struct {
+B struct {
+A string
+C int
+D string
+T string
+}
+}
+func MapFromHoge(hoge Hoge) HogeMap {
+return HogeMap{
+B: struct {
+A string
+C int
+D string
+T string
+}{
+A: string(hoge.B.A),
+C: hoge.B.C,
+D: hoge.B.D.toString(),
+T: hoge.B.T.Format("2006-01-02"),
+},
+}
+}`
+
+	if result != expectedStr {
 		t.Error(result)
 	}
 
