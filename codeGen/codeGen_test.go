@@ -78,7 +78,7 @@ func TestGenPrimitiveStructMap3(t *testing.T) {
 
 	type Huga struct {
 		a BBB
-		c CCC `goMapper:"coarseString"`
+		c CCC `goIsoMapper:"coarseString"`
 		d int
 		t time.Time
 	}
@@ -108,7 +108,7 @@ func TestGenerate(t *testing.T) {
 	type Huga struct {
 		A BBB
 		C int
-		D int `goMapper:"coarseString"`
+		D int `goIsoMapper:"coarseString"`
 		T time.Time
 	}
 	type Hoge struct {
