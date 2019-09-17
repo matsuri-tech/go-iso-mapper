@@ -1,1 +1,1 @@
-module matsuri-tech/go-iso-mapper
+module github.com/matsuri-tech/go-iso-mapper
