@@ -105,6 +105,8 @@ func genPrimitiveStructMap(st interface{}) structMap {
 				v := reflect.New(f.Type).Elem().Interface()
 				result[f.Name] = genPrimitiveStructMap(v)
 			}
+		} else if f.Type.Kind().String() == "slice" {
+			result[f.Name] = f.Type.String()
 		} else {
 			result[f.Name] = f.Type.Kind().String()
 		}

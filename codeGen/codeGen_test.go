@@ -146,3 +146,26 @@ T: hoge.B.T.Format("2006-01-02"),
 	}
 
 }
+
+func TestGenerate2(t *testing.T) {
+
+	type Hoge struct {
+		B []int
+	}
+	result := Generate(Hoge{}, "toString", "2006-01-02")
+
+	// テストコードがやばすぎる
+	expectedStr := `type HogeMap struct {
+B []int
+}
+func MapFromHoge(hoge Hoge) HogeMap {
+return HogeMap{
+B: []int(hoge.B),
+}
+}`
+
+	if result != expectedStr {
+		t.Error(result)
+	}
+
+}
