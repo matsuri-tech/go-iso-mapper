@@ -1,4 +1,4 @@
-package codeGen
+package goIsoMapper
 
 import (
 	"reflect"
